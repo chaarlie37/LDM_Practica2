@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -51,6 +53,10 @@ public class QuizActivity extends AppCompatActivity {
 
     protected Partida partida;
     protected List<Boolean> respuestas;
+
+    protected SoundPool soundPool;
+    protected int sonido_correcto;
+    protected int sonido_incorrecto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,33 +103,12 @@ public class QuizActivity extends AppCompatActivity {
         preguntas.add(new PreguntaImagenes("¿Cuál es el logotipo de Subaru?", R.drawable.subaru, R.drawable.mercedes, R.drawable.toyota, R.drawable.huyndai));
 
 
-
-
-/*
-
-        //MiRoom.getMiRoom(getApplicationContext()).preguntaTextoDAO().deleteAllPreguntaTexto();
-        //MiRoom.getMiRoom(getApplicationContext()).preguntaImagenesDAO().deleteAllPreguntaImagenes();
-
-
-        for (Pregunta preguntaTexto : preguntas){
-            //miRoom.insertPreguntaTexto((PreguntaTexto) preguntaTexto);
-            //MiRoom.getMiRoom(getApplicationContext()).insertPreguntaTexto((PreguntaTexto) preguntaTexto);
-            MiRoom.getMiRoom(getApplicationContext()).preguntaTextoDAO().insertPreguntaTexto((PreguntaTexto) preguntaTexto);
-        }
-
-        //MiRoom.getMiRoom(getApplicationContext()).preguntaImagenesDAO().insertPreguntaImagenes((PreguntaImagenes) new PreguntaImagenes("¿Cuál es el logotipo de Subaru?", R.drawable.subaru, R.drawable.mercedes, R.drawable.toyota, R.drawable.huyndai));
-
-        List<PreguntaTexto> preguntasTexto = MiRoom.getMiRoom(getApplicationContext()).preguntaTextoDAO().findAllPreguntaTexto();
-        List<PreguntaImagenes> preguntasImagenes = MiRoom.getMiRoom(getApplicationContext()).preguntaImagenesDAO().findAllPreguntaImagenes();
-        preguntas.addAll(preguntasTexto);
-        preguntas.addAll(preguntasImagenes);
-
-
-*/
-
         partida = new Partida();
         respuestas = new ArrayList<>();
 
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 1);
+        sonido_correcto = soundPool.load(this, R.raw.respuesta_correcta, 1);
+        sonido_incorrecto = soundPool.load(this, R.raw.respuesta_incorrecta, 1);
 
         cambiarPregunta();
     }
@@ -207,6 +192,7 @@ public class QuizActivity extends AppCompatActivity {
                 Toast.makeText(this, "¡Respuesta correcta!", Toast.LENGTH_SHORT).show();
                 puntos += 3;
                 respuestas.add(true);
+                playSonido(sonido_correcto);
                 // Tras el delay de 1 segundo, se cambia la pregunta
                 new CountDownTimer(1000, 1000) {
                     public void onFinish() {
@@ -218,6 +204,7 @@ public class QuizActivity extends AppCompatActivity {
             else {
                 imageButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.respuestaIncorrecta)));
                 // Si se ha fallado aparece un diálogo preguntando al usuario si quiere continuar o reiniciar la partida
+                playSonido(sonido_incorrecto);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("¡Respuesta incorrecta!");
                 builder.setMessage("Has fallado. ¿Quieres continuar o prefieres empezar de nuevo?");
@@ -248,12 +235,14 @@ public class QuizActivity extends AppCompatActivity {
             if (respuestaCorrecta){
                 puntos += 3;
                 respuestas.add(true);
+                playSonido(sonido_correcto);
                 Toast.makeText(this, "¡Respuesta correcta!", Toast.LENGTH_SHORT).show();
                 radioGroup.clearCheck();
                 cambiarPregunta();
             }
             else {
                 // Si se ha fallado aparece un diálogo preguntando al usuario si quiere continuar o reiniciar la partida
+                playSonido(sonido_incorrecto);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("¡Respuesta incorrecta!");
                 builder.setMessage("Has fallado. ¿Quieres continuar o prefieres empezar de nuevo?");
@@ -282,11 +271,16 @@ public class QuizActivity extends AppCompatActivity {
 
     // Se crea un intent para pasar a la Activity que muestra la puntuación
     public void terminarQuiz(){
+        // Por cada partida que se termina, se crea un objeto partida para guardarla en el historial
         partida = new Partida(respuestas.get(0), respuestas.get(1), respuestas.get(2), respuestas.get(3), respuestas.get(4), puntos);
         MiRoom.getMiRoom(getApplicationContext()).partidaDAO().insertPartida(partida);
         Intent resultadoIntent = new Intent(this, ResultadoActivity.class);
         resultadoIntent.putExtra("puntos", puntos);
         startActivity(resultadoIntent);
+    }
+
+    private void playSonido(int sonido){
+        soundPool.play(sonido, 1, 1, 1, 0, 0);
     }
 
 

@@ -16,11 +16,14 @@ public interface PartidaDAO {
     Partida findPartidaById(int id);
 
     @Query("SELECT * FROM partida")
-    List<PreguntaImagenes> findAllPartidas();
+    List<Partida> findAllPartidas();
 
     @Query("SELECT COUNT(*) FROM partida")
     int getCountPartidas();
 
     @Query("DELETE FROM partida")
     void deleteAllPartidas();
+
+    @Query("DELETE FROM partida WHERE id LIKE :id")
+    void deletePartida(int id);
 }

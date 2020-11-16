@@ -1,11 +1,18 @@
 <resources>
     <string name="app_name">LogoGuess</string>
     <string name="btn_jugar">Jugar</string>
+    <string name="btn_historial_partidas">Historial de partidas</string>
     <string name="btn_jugarotravez">Volver al inicio</string>
     <string name="btn_siguiente">Siguiente</string>
     <string name="content_description_respuesta">Respuesta en imagen</string>
     <string name="puntos_acumulados">Puntos: %d</string>
     <string name="Logo">Logo</string>
+    <string name="p1">1</string>
+    <string name="p2">2</string>
+    <string name="p3">3</string>
+    <string name="p4">4</string>
+    <string name="p5">5</string>
+    <string name="partidas_respuestas">Respuestas:</string>
     <plurals name="msg_final">
         <item quantity="one">¡Has conseguido %d punto!</item>
         <item quantity="other">¡Has conseguido %d puntos!</item>

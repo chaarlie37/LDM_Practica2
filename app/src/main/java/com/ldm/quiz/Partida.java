@@ -80,4 +80,25 @@ public class Partida {
     public void setPuntos(int puntos) {
         this.puntos = puntos;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Partida{" +
+                "id=" + id +
+                ", p1=" + p1 +
+                ", p2=" + p2 +
+                ", p3=" + p3 +
+                ", p4=" + p4 +
+                ", p5=" + p5 +
+                ", puntos=" + puntos +
+                '}';
+    }
 }

@@ -1,11 +1,18 @@
 package com.ldm.quiz;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ldm.quiz.dummy.DummyContent.DummyItem;
 
@@ -21,6 +28,7 @@ public class MyPartidaRecyclerViewAdapter extends RecyclerView.Adapter<MyPartida
 
     public MyPartidaRecyclerViewAdapter(List<Partida> items) {
         mValues = items;
+        System.out.println(items);
     }
 
     @Override
@@ -32,12 +40,54 @@ public class MyPartidaRecyclerViewAdapter extends RecyclerView.Adapter<MyPartida
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        //holder.mItem = mValues.get(position);
-        //holder.mIdView.setText(mValues.get(position).id);
-        //holder.mContentView.setText(mValues.get(position).content);
-        boolean p1 = mValues.get(position).isP1();
-        TextView textView = (TextView) holder.mView.findViewById(R.id.prueba);
-        textView.setText(Boolean.toString(p1));
+
+        // Coloreamos de verde las preguntas correctas y de rojo las incorrectas y ponemos los puntos
+        holder.puntos.setText(holder.puntos.getContext().getString(R.string.puntos_acumulados, mValues.get(position).getPuntos()));
+        if (mValues.get(position).isP1())
+            holder.p1.setBackgroundTintList(ColorStateList.valueOf(holder.p1.getResources().getColor(R.color.respuestaCorrecta)));
+        else
+            holder.p1.setBackgroundTintList(ColorStateList.valueOf(holder.p1.getResources().getColor(R.color.respuestaIncorrecta)));
+        if (mValues.get(position).isP2())
+            holder.p2.setBackgroundTintList(ColorStateList.valueOf(holder.p2.getResources().getColor(R.color.respuestaCorrecta)));
+        else
+            holder.p2.setBackgroundTintList(ColorStateList.valueOf(holder.p2.getResources().getColor(R.color.respuestaIncorrecta)));
+        if (mValues.get(position).isP3())
+            holder.p3.setBackgroundTintList(ColorStateList.valueOf(holder.p3.getResources().getColor(R.color.respuestaCorrecta)));
+        else
+            holder.p3.setBackgroundTintList(ColorStateList.valueOf(holder.p3.getResources().getColor(R.color.respuestaIncorrecta)));
+        if (mValues.get(position).isP4())
+            holder.p4.setBackgroundTintList(ColorStateList.valueOf(holder.p4.getResources().getColor(R.color.respuestaCorrecta)));
+        else
+            holder.p4.setBackgroundTintList(ColorStateList.valueOf(holder.p4.getResources().getColor(R.color.respuestaIncorrecta)));
+        if (mValues.get(position).isP5())
+            holder.p5.setBackgroundTintList(ColorStateList.valueOf(holder.p5.getResources().getColor(R.color.respuestaCorrecta)));
+        else
+            holder.p5.setBackgroundTintList(ColorStateList.valueOf(holder.p5.getResources().getColor(R.color.respuestaIncorrecta)));
+
+        // Si se hace clic en el botón eliminar aparece un dialogo. Si se confirma, se elimina de la base de datos y de la lista de elementos
+        holder.btn_eliminar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setMessage("¿Desea eliminar la partida?");
+                builder.setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        MiRoom.getMiRoom(v.getContext()).partidaDAO().deletePartida(mValues.get(holder.getAdapterPosition()).getId());
+                        mValues.remove(holder.getAdapterPosition());
+                        notifyItemRemoved(holder.getAdapterPosition());
+                    }
+                });
+                builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
     }
 
     @Override
@@ -46,21 +96,24 @@ public class MyPartidaRecyclerViewAdapter extends RecyclerView.Adapter<MyPartida
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public Partida mItem;
+        public final TextView puntos;
+        public final TextView p1;
+        public final TextView p2;
+        public final TextView p3;
+        public final TextView p4;
+        public final TextView p5;
+        public final ImageButton btn_eliminar;
 
         public ViewHolder(View view) {
             super(view);
-            mView = view;
-            mIdView = (TextView) view.findViewById(R.id.item_number);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            puntos = view.findViewById(R.id.prueba);
+            p1 = view.findViewById(R.id.p1);
+            p2 = view.findViewById(R.id.p2);
+            p3 = view.findViewById(R.id.p3);
+            p4 = view.findViewById(R.id.p4);
+            p5 = view.findViewById(R.id.p5);
+            btn_eliminar = view.findViewById(R.id.btn_eliminar_partida);
         }
 
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
-        }
     }
 }
